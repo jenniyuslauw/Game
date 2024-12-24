@@ -1,0 +1,75 @@
+// Set up the canvas and variables
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = 800;
+canvas.height = 400;
+
+let player1 = { x: 50, y: 150, width: 20, height: 80, speed: 5 };
+let player2 = { x: 730, y: 150, width: 20, height: 80, speed: 5 };
+let ball = { x: 400, y: 200, radius: 10, speedX: 3, speedY: 3 };
+
+// Draw player function
+function drawPlayer(player) {
+    ctx.fillStyle = 'blue';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+// Draw ball function
+function drawBall() {
+    ctx.fillStyle = 'red';
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// Move ball function
+function moveBall() {
+    ball.x += ball.speedX;
+    ball.y += ball.speedY;
+
+    if (ball.y <= 0 || ball.y >= canvas.height) {
+        ball.speedY = -ball.speedY;
+    }
+
+    if (ball.x <= player1.x + player1.width && ball.y >= player1.y && ball.y <= player1.y + player1.height) {
+        ball.speedX = -ball.speedX;
+    }
+
+    if (ball.x >= player2.x - ball.radius && ball.y >= player2.y && ball.y <= player2.y + player2.height) {
+        ball.speedX = -ball.speedX;
+    }
+
+    if (ball.x <= 0 || ball.x >= canvas.width) {
+        resetBall();
+    }
+}
+
+// Reset ball position
+function resetBall() {
+    ball.x = 400;
+    ball.y = 200;
+    ball.speedX = 3 * (Math.random() > 0.5 ? 1 : -1);
+    ball.speedY = 3 * (Math.random() > 0.5 ? 1 : -1);
+}
+
+// Draw everything
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawPlayer(player1);
+    drawPlayer(player2);
+    drawBall();
+    moveBall();
+}
+
+// Player control (keyboard input)
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'w' && player1.y > 0) player1.y -= player1.speed;
+    if (e.key === 's' && player1.y < canvas.height - player1.height) player1.y += player1.speed;
+    if (e.key === 'ArrowUp' && player2.y > 0) player2.y -= player2.speed;
+    if (e.key === 'ArrowDown' && player2.y < canvas.height - player2.height) player2.y += player2.speed;
+});
+
+// Start game loop
+setInterval(draw, 1000 / 60); // Update every 16ms
